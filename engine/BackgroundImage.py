@@ -55,8 +55,8 @@ class BackgroundImage(pygame.sprite.Sprite):
 			self.maskimage = None
 			self.mask = None
 
-		if os.path.exists(self.stage + "background.png"):
-			self.backgrund = pygame.image.load("../graphics/" + stage + "/background.png").convert_alpha()
+		if os.path.exists(self.stage + "background.jpg"):
+			self.background = pygame.image.load("../graphics/" + stage + "/background.jpg").convert_alpha()
 		else:
 			self.background = None
 
