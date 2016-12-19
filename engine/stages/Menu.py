@@ -51,6 +51,9 @@ class Menu(AbstractStage):
 
             pygame.time.Clock().tick(15)
             aux = self.menuSelection(self.checkPressed())
+
+            self.checkMouse()
+
             if self.window.resolutionChange:
                 self.fixResolution()
             if aux != "":
@@ -60,6 +63,11 @@ class Menu(AbstractStage):
         self.resizeImages()
         self.window.resolutionChange = False
         self.change = True
+
+    def checkMouse(self):
+        for i in self.options:
+
+
 
     def checkPressed(self):
         for event in pygame.event.get():

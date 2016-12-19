@@ -27,14 +27,13 @@ class AbstractStage:
 		self.level.imgs[0].rect.x = 800
 		self.level.imgs[0].rect.y = 100
 		self.secretappears = False
-		self.msgs = None
+		self.msgs = {}
 		#		self.mouse_img = pygame.image.load("../graphics/mouse.jpg").convert_alpha()
 
 	def collision(self, pos):
 
 		for i in self.level.imgs:
 			rect = i.rect
-			print("entrou aqui")
 			if rect.collidepoint(pos):
 				mask = pygame.mask.from_surface(i.image)
 				offset = pos[0] - rect.x, pos[1] - rect.y
@@ -43,31 +42,28 @@ class AbstractStage:
 					if i.collision == "returnStage1":
 						self.nextStageKey = "Menu"
 						return
+					elif i.collision == "box":
+						if "msg" in i.whathappens:
+							string = i.whathappens.replace("msg ", "")
+							self.msgs[string][1] = True
+							print(self.msgs[string])
 
 		rect = self.level.rect
 		if rect.collidepoint(pos) and self.level.mask:
-			print("entrou")
 			offset = pos[0] - rect.x, pos[1] - rect.y
 			if self.level.mask.get_at(offset):
 
 				if self.actualStageKey == "Fase1":
 					self.nextStageKey = "parabens1"
 				elif self.actualStageKey == "parabens1":
-
 					self.nextStageKey = "Fase2"
+
+				elif self.actualStageKey == "Fase2":
+					self.nextStageKey = "Menu"
 			else:
 				self.nextStageKey = "gameover"
-		"""
-		rect = Rect(608,314,240,160)
-		if rect.collidepoint(pos) and self.level.mask2:
-			offset = pos[0] - rect.x, pos[1] - rect.y
-			if self.level.mask.get_at(offset):
-				self.secretappears = True
-			else:
-				self.secretappears = False
-		else:
-			self.secretappears = False
-		"""
+
+
 
 	def gameover(self):
 		self.level = BackgroundImage("GameOver", "death", "jpg")
@@ -80,7 +76,12 @@ class AbstractStage:
 	def fase2(self):
 		self.level = BackgroundImage("Fase2", "esqueleto", "png")
 		self.level.addGIF([["ondas.gif", (600, 300)]])
-		self.msgs = ["Frequencia", (500, 600)]
+		self.level.addImages([["frame", -1, "msg Frequencia", "box"]])
+		self.msgs["Frequencia"] = [(450, 150), False, "Sinais de Frequência"]
+
+		self.level.imgs[0].rect.x = 500
+		self.level.imgs[0].rect.y = 200
+
 
 	def scene_imgs(self):
 
@@ -96,17 +97,25 @@ class AbstractStage:
 		for i in self.level.gifs:
 			i.gif.render(self.window.windowScreen, (i.x, i.y))
 
-		if self.msgs and self.secretappears:
-			text = self.font.fonts["Font1"].render(self.msgs[0], True, (255,255,255))
-			self.window.windowScreen.blit(text, self.msgs[1])
+		for i,j in self.msgs.items():
+			print(i,j)
+			if j[1]:
+				text = self.fonts.fonts["Font1"].render(j[2], True, (255,255,255))
+				self.window.windowScreen.blit(text, j[0])
+
+	def clean_msgsdict(self):
+		for i,j in self.msgs.items():
+			j[1] = False
+
 
 
 	def update(self):
 		while (self.actualStageKey == self.nextStageKey):
+			self.clean_msgsdict()
 			self.window.windowScreen.fill((255, 255, 255))
-			
-			self.scene_imgs()
 			self.checkPressed()
+			self.scene_imgs()
+
 			pygame.display.flip()
 			self.window.windowScreen.fill((255, 255, 255))
 			pygame.time.Clock().tick(60)
@@ -119,5 +128,5 @@ class AbstractStage:
 		for event in pygame.event.get():
 			if event.type == pygame.QUIT or pygame.key.get_pressed()[pygame.K_ESCAPE]:
 				sys.exit()
-			elif event.type == pygame.MOUSEBUTTONDOWN:
+			elif event.type == pygame.MOUSEBUTTONDOWN or pygame.mouse.get_pressed()[0]:
 				self.collision(pygame.mouse.get_pos())

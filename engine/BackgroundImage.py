@@ -17,7 +17,8 @@ class MyImage(pygame.sprite.Sprite):
 		try:
 			self.frame = params[1]
 			self.actualframe = 0
-			self.appears = False
+			if params[1] >= 0:
+				self.appears = False
 		except IndexError:
 			self.frame = -1
 
